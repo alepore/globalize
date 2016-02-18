@@ -59,7 +59,16 @@ module Globalize
       def parse_translated_conditions(opts)
         if opts.is_a?(Hash) && respond_to?(:translated_attribute_names) && (keys = opts.symbolize_keys.keys & translated_attribute_names).present?
           opts = opts.dup
-          keys.each { |key| opts[translated_column_name(key)] = opts.delete(key) || opts.delete(key.to_s) }
+          keys.each do |key|
+            split_name = translated_column_name(key).split(".")
+            # If the table name contains a schema (more than one dot char)
+            if split_name.length > 2
+              field = split_name.pop
+              opts[split_name.join(".")] = { field => opts.delete(key) || opts.delete(key.to_s) }
+            else
+              opts[translated_column_name(key)] = opts.delete(key) || opts.delete(key.to_s)
+            end
+          end
           opts
         end
       end
