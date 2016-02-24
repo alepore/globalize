@@ -68,7 +68,7 @@ module Globalize
 
         def create_translation_table
           connection.create_table(translations_table_name) do |t|
-            t.references table_name.sub(/^#{table_name_prefix}/, '').singularize, :null => false
+            t.references table_name_without_schema.sub(/^#{table_name_prefix}/, '').singularize, :null => false
             t.string :locale, :null => false
             t.timestamps
           end
@@ -89,7 +89,7 @@ module Globalize
         def create_translations_index
           connection.add_index(
             translations_table_name,
-            "#{table_name.sub(/^#{table_name_prefix}/, "").singularize}_id",
+            "#{table_name_without_schema.sub(/^#{table_name_prefix}/, "").singularize}_id",
             :name => translation_index_name
           )
           # index for select('DISTINCT locale') call in translation.rb
@@ -182,6 +182,9 @@ module Globalize
           end
         end
 
+        def table_name_without_schema
+          table_name.split('.').last
+        end
       end
     end
   end
