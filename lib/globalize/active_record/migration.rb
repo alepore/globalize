@@ -81,6 +81,7 @@ module Globalize
         def add_translation_fields
           connection.change_table(translations_table_name) do |t|
             fields.each do |name, options|
+              next if connection.column_exists? translations_table_name, name
               if options.is_a? Hash
                 t.column name, options.delete(:type), options
               else
